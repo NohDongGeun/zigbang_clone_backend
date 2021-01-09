@@ -4,6 +4,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RoomModule } from './room/room.module';
 import { ConfigModule } from '@nestjs/config';
+import { Room } from './room/entities/room.entity';
 
 @Module({
   imports: [
@@ -29,9 +30,10 @@ import { ConfigModule } from '@nestjs/config';
       port: +process.env.DB_PORT,
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATEBASE,
-      synchronize: true,
+      database: 'zicbang',
+      synchronize: process.env.NODE_ENV !== 'prod',
       logging: true,
+      entities: [Room],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,

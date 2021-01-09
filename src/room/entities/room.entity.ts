@@ -1,13 +1,22 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @ObjectType()
+@Entity()
 export class Room {
-  @Field(is => String)
+  @PrimaryColumn()
+  @Field(type => Number)
+  id: number;
+
+  @Column()
+  @Field(type => String)
   name: string;
 
-  @Field(is => String)
+  @Column()
+  @Field(type => String)
   owner: string;
 
-  @Field(is => String)
+  @Column()
+  @Field(type => String)
   position: String;
 }
