@@ -1,18 +1,6 @@
-import { ArgsType, Field } from '@nestjs/graphql';
+import { InputType, Field, OmitType } from '@nestjs/graphql';
 import { IsString, Length } from 'class-validator';
+import { Room } from '../room.entity';
 
-@ArgsType()
-export class CreateRoomDto {
-  @Field(type => String)
-  @IsString()
-  @Length(5, 10)
-  name: string;
-
-  @Field(is => String)
-  @IsString()
-  owner: string;
-
-  @Field(is => String)
-  @IsString()
-  position: String;
-}
+@InputType()
+export class CreateRoomDto extends OmitType(Room, ['id'], InputType) {}
