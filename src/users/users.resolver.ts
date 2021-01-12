@@ -4,8 +4,9 @@ import { AuthUser } from 'src/auth/auth-user.decorator';
 import { AuthUserGuard } from 'src/auth/auth.guard';
 import { MutationOutput } from 'src/common/dtos/output.dto';
 import { CreateAccountInput, CreateAccountOutput } from './dtos/create-account.dto';
+import { EditProfileInput, EditProfileOutput } from './dtos/edit-profile.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
-import { UpdatePasswordOutput, UpdatePasswordInput } from './dtos/update-password.dto';
+import { UserProfileInput, UserProfileOutput } from './dtos/userProfile.dto';
 import { VerifyEmailInput, VerifyEmailOutput } from './dtos/verify-email.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
@@ -14,30 +15,16 @@ import { UsersService } from './users.service';
 export class UsersResolver {
   constructor(private readonly userService: UsersService) {}
 
+  //계정생성
   @Mutation(returns => CreateAccountOutput)
-  async createAccount(@Args('input') createAccountInput: CreateAccountInput): Promise<CreateAccountOutput> {
-    try {
-      const { ok, error } = await this.userService.createAccount(createAccountInput);
-      return {
-        ok,
-        error,
-      };
-    } catch (error) {
-      return {
-        ok: false,
-        error,
-      };
-    }
+  createAccount(@Args('input') createAccountInput: CreateAccountInput): Promise<CreateAccountOutput> {
+    return this.userService.createAccount(createAccountInput);
   }
 
+  //로그인
   @Mutation(returns => LoginOutput)
-  async login(@Args('input') loginInput: LoginInput): Promise<LoginOutput> {
-    try {
-      const { ok, token, error } = await this.userService.login(loginInput);
-      return { ok, error, token };
-    } catch (error) {
-      return { ok: false, error };
-    }
+  login(@Args('input') loginInput: LoginInput): Promise<LoginOutput> {
+    return this.userService.login(loginInput);
   }
 
   @Query(returns => User)
@@ -46,37 +33,26 @@ export class UsersResolver {
     return authUser;
   }
 
-  @Mutation(returns => UpdatePasswordOutput)
+  //유저 프로필
   @UseGuards(AuthUserGuard)
-  async updatePassword(
-    @AuthUser() authUser: User,
-    @Args('input') updatePasswordInput: UpdatePasswordInput,
-  ): Promise<UpdatePasswordOutput> {
-    try {
-      await this.userService.updatePassword(authUser.id, updatePasswordInput);
-      return {
-        ok: true,
-      };
-    } catch (error) {
-      return {
-        ok: false,
-        error,
-      };
-    }
+  @Query(returns => UserProfileOutput)
+  userProfile(@Args() userProfileInput: UserProfileInput): Promise<UserProfileOutput> {
+    return this.userService.findById(userProfileInput.userId);
   }
 
+  //프로필 수정
+  @UseGuards(AuthUserGuard)
+  @Mutation(returns => EditProfileOutput)
+  editProfile(
+    @AuthUser() authUser: User,
+    @Args('input') editProfileInput: EditProfileInput,
+  ): Promise<EditProfileOutput> {
+    return this.userService.editProfile(authUser.id, editProfileInput);
+  }
+
+  //이메일 인증
   @Mutation(returns => VerifyEmailOutput)
-  async verifyEmail(@Args('input') { code }: VerifyEmailInput): Promise<VerifyEmailOutput> {
-    try {
-      await this.userService.verifyEmail(code);
-      return {
-        ok: true,
-      };
-    } catch (error) {
-      return {
-        ok: false,
-        error,
-      };
-    }
+  verifyEmail(@Args('input') { code }: VerifyEmailInput): Promise<VerifyEmailOutput> {
+    return this.userService.verifyEmail(code);
   }
 }
