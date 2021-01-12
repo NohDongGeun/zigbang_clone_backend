@@ -6,6 +6,7 @@ import { MutationOutput } from 'src/common/dtos/output.dto';
 import { CreateAccountInput, CreateAccountOutput } from './dtos/create-account.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { UpdatePasswordOutput, UpdatePasswordInput } from './dtos/update-password.dto';
+import { VerifyEmailInput, VerifyEmailOutput } from './dtos/verify-email.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 
@@ -53,6 +54,21 @@ export class UsersResolver {
   ): Promise<UpdatePasswordOutput> {
     try {
       await this.userService.updatePassword(authUser.id, updatePasswordInput);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error,
+      };
+    }
+  }
+
+  @Mutation(returns => VerifyEmailOutput)
+  async verifyEmail(@Args('input') { code }: VerifyEmailInput): Promise<VerifyEmailOutput> {
+    try {
+      await this.userService.verifyEmail(code);
       return {
         ok: true,
       };

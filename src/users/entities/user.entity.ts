@@ -26,10 +26,14 @@ export class User extends CoreEntity {
   @IsEnum(Platform)
   platform: Platform;
 
-  @Column()
+  @Column({ select: false })
   @Field(type => String)
   @IsString()
   password: string;
+
+  @Column({ default: false })
+  @Field(type => Boolean)
+  verified: boolean;
 
   @BeforeUpdate()
   @BeforeInsert()
@@ -43,12 +47,14 @@ export class User extends CoreEntity {
   }
 
   async checkPassword(aPassword: string): Promise<boolean> {
-    try {
-      const ok = await bcrypt.compare(aPassword, this.password);
-      return ok;
-    } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException();
+    if (this.password) {
+      try {
+        const ok = await bcrypt.compare(aPassword, this.password);
+        return ok;
+      } catch (error) {
+        console.log(error);
+        throw new InternalServerErrorException();
+      }
     }
   }
 }

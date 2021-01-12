@@ -13,6 +13,7 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
 import { AuthModule } from './auth/auth.module';
 import { AgencyModule } from './agency/agency.module';
 import { Agency } from './agency/entities/agency.entity';
+import { Verification } from './users/entities/verification.entity';
 
 @Module({
   imports: [
@@ -42,7 +43,7 @@ import { Agency } from './agency/entities/agency.entity';
       database: 'zicbang',
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: process.env.NODE_ENV !== 'prod',
-      entities: [Room, User, Agency],
+      entities: [Room, User, Agency,Verification],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
