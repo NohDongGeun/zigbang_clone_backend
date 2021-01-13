@@ -6,6 +6,7 @@ import { MutationOutput } from 'src/common/dtos/output.dto';
 import { CreateAccountInput, CreateAccountOutput } from './dtos/create-account.dto';
 import { EditProfileInput, EditProfileOutput } from './dtos/edit-profile.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
+import { PasswordEmailInput, PasswordEmailOutput } from './dtos/password-email.dto';
 import { UserProfileInput, UserProfileOutput } from './dtos/userProfile.dto';
 import { VerifyEmailInput, VerifyEmailOutput } from './dtos/verify-email.dto';
 import { User } from './entities/user.entity';
@@ -54,5 +55,10 @@ export class UsersResolver {
   @Mutation(returns => VerifyEmailOutput)
   verifyEmail(@Args('input') { code }: VerifyEmailInput): Promise<VerifyEmailOutput> {
     return this.userService.verifyEmail(code);
+  }
+
+  @Mutation(returns => PasswordEmailOutput)
+  passwordEmail(@Args('input') passwordEmailInput: PasswordEmailInput): Promise<PasswordEmailOutput> {
+    return this.userService.findPassword(passwordEmailInput);
   }
 }

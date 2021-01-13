@@ -11,9 +11,9 @@ import { User } from './users/entities/user.entity';
 import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { AuthModule } from './auth/auth.module';
-import { AgencyModule } from './agency/agency.module';
 import { Agency } from './agency/entities/agency.entity';
 import { Verification } from './users/entities/verification.entity';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -31,6 +31,9 @@ import { Verification } from './users/entities/verification.entity';
         DB_PASSWORD: Joi.string().required(),
         DB_DATABASE: Joi.string().required(),
         PRIVATE_KEY: Joi.string().required(),
+        MAIL_APIKEY: Joi.string().required(),
+        MAIL_DOMAIN: Joi.string().required(),
+        MAIL_FROMEMAIL: Joi.string().required(),
       }),
     }),
     //postgres 연결
@@ -43,18 +46,22 @@ import { Verification } from './users/entities/verification.entity';
       database: 'zicbang',
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: process.env.NODE_ENV !== 'prod',
-      entities: [Room, User, Agency,Verification],
+      entities: [Room, User, Verification],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
-      context: ({ req }) => ({ user: req['user'], agency: req['agency'] }),
+      context: ({ req }) => ({ user: req['user'] }),
     }),
     RoomModule,
     UsersModule,
     CommonModule,
     JwtModule.forRoot({ privateKey: process.env.PRIVATE_KEY }),
     AuthModule,
-    AgencyModule,
+    MailModule.forRoot({
+      apiKey: process.env.MAIL_APIKEY,
+      domain: process.env.MAIL_DOMAIN,
+      fromEmail: process.env.MAIL_FROMEMAIL,
+    }),
   ],
   controllers: [],
   providers: [],

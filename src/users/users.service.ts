@@ -4,19 +4,21 @@ import { Repository } from 'typeorm';
 import { CreateAccountInput, CreateAccountOutput } from './dtos/create-account.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
 import { User } from './entities/user.entity';
-import * as jwt from 'jsonwebtoken';
-import { ConfigService } from '@nestjs/config';
+import { v4 as uuidv4 } from 'uuid';
 import { JwtService } from 'src/jwt/jwt.service';
 import { Verification } from './entities/verification.entity';
 import { UserProfileOutput } from './dtos/userProfile.dto';
 import { EditProfileInput, EditProfileOutput } from './dtos/edit-profile.dto';
 import { VerifyEmailOutput } from './dtos/verify-email.dto';
+import { MailService } from 'src/mail/mail.service';
+import { PasswordEmailInput, PasswordEmailOutput } from './dtos/password-email.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly users: Repository<User>,
     @InjectRepository(Verification) private readonly verification: Repository<Verification>,
+    private readonly mailService: MailService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -28,12 +30,15 @@ export class UsersService {
       if (isUser) {
         return { ok: false, error: '이미 가입한 계정입니다' };
       }
+
       const user = await this.users.save(this.users.create({ email, password, platform, name, phone }));
-      await this.verification.save(
+      const verify = await this.verification.save(
         this.verification.create({
           user,
         }),
       );
+      console.log(user.email);
+      this.mailService.sendVerificationEmail(user.name, verify.code, user.email);
       return { ok: true };
     } catch (error) {
       //make error
@@ -112,11 +117,33 @@ export class UsersService {
       if (verification) {
         verification.user.verified = true;
         await this.users.save(verification.user);
+        await this.verification.delete(verification.id);
         return { ok: true };
       }
       return { ok: false, error: 'Verification not found.' };
     } catch (error) {
       return { ok: false, error };
+    }
+  }
+
+  async findPassword({ email }: PasswordEmailInput): Promise<PasswordEmailOutput> {
+    try {
+      const isUser = await this.users.findOne({ email }, { select: ['id', 'password', 'name', 'email'] });
+
+      if (!isUser) {
+        return { ok: false, error: '없는 이메일 입니다' };
+      }
+      const exPassword = uuidv4();
+      await this.editProfile(isUser.id, { password: exPassword });  
+      this.mailService.sendPasswordEmail(isUser.name, exPassword, isUser.email);
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error,
+      };
     }
   }
 }
