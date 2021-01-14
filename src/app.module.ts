@@ -11,9 +11,10 @@ import { User } from './users/entities/user.entity';
 import { JwtModule } from './jwt/jwt.module';
 import { JwtMiddleware } from './jwt/jwt.middleware';
 import { AuthModule } from './auth/auth.module';
-import { Agency } from './agency/entities/agency.entity';
 import { Verification } from './users/entities/verification.entity';
 import { MailModule } from './mail/mail.module';
+import { AgencyModule } from './agency/agency.module';
+import { Agency } from './agency/entities/agency.entity';
 
 @Module({
   imports: [
@@ -46,11 +47,11 @@ import { MailModule } from './mail/mail.module';
       database: 'zicbang',
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: process.env.NODE_ENV !== 'prod',
-      entities: [Room, User, Verification],
+      entities: [Room, User, Verification, Agency],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
-      context: ({ req }) => ({ user: req['user'] }),
+      context: ({ req }) => ({ user: req['user'], agency: req['agency'] }),
     }),
     RoomModule,
     UsersModule,
@@ -62,6 +63,7 @@ import { MailModule } from './mail/mail.module';
       domain: process.env.MAIL_DOMAIN,
       fromEmail: process.env.MAIL_FROMEMAIL,
     }),
+    AgencyModule,
   ],
   controllers: [],
   providers: [],

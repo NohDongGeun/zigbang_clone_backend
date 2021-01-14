@@ -8,7 +8,7 @@ import { EmailVar, MailModuleOptions } from './mail.interfaces';
 export class MailService {
   constructor(@Inject(CONFIG_OPTIONS) private readonly options: MailModuleOptions) {}
 
-  private async sendEmail(subject: string, to: string, template: string, emailVars: EmailVar[]) {
+  async sendEmail(subject: string, to: string, template: string, emailVars: EmailVar[]): Promise<boolean> {
     const form = new FormData();
     form.append('from', `직방 클론 <mailgun@${this.options.domain}>`);
     form.append('to', to);
@@ -23,21 +23,21 @@ export class MailService {
         },
         body: form,
       });
+      return true;
     } catch (error) {
-      console.log(error);
+      return false;
     }
   }
-  sendVerificationEmail(name: string, code: string, to: string) {
+  sendVerificationEmail(name: string, code: string, to: string): void {
     this.sendEmail('Verify Your Email', to, 'verify-email', [
       { key: 'code', value: code },
       { key: 'username', value: name },
     ]);
   }
-  sendPasswordEmail(name: string, password: string, to: string) {
+  sendPasswordEmail(name: string, password: string, to: string): void {
     this.sendEmail('Your Password is...', to, 'password-email', [
       { key: 'password', value: password },
       { key: 'username', value: name },
     ]);
-    console.log(name, password, to);
   }
 }

@@ -37,7 +37,7 @@ export class UsersService {
           user,
         }),
       );
-      console.log(user.email);
+
       this.mailService.sendVerificationEmail(user.name, verify.code, user.email);
       return { ok: true };
     } catch (error) {
@@ -79,12 +79,10 @@ export class UsersService {
   async findById(id: number): Promise<UserProfileOutput> {
     try {
       const user = await this.users.findOne({ id });
-      if (user) {
-        return {
-          ok: true,
-          user,
-        };
-      }
+      return {
+        ok: true,
+        user,
+      };
     } catch (error) {
       return { ok: false, error: 'User Not Found' };
     }
@@ -134,7 +132,7 @@ export class UsersService {
         return { ok: false, error: '없는 이메일 입니다' };
       }
       const exPassword = uuidv4();
-      await this.editProfile(isUser.id, { password: exPassword });  
+      await this.editProfile(isUser.id, { password: exPassword });
       this.mailService.sendPasswordEmail(isUser.name, exPassword, isUser.email);
       return {
         ok: true,
