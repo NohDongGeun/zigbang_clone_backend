@@ -7,17 +7,20 @@ import { AgencyProfileInput, AgencyProfileOutput } from './dtos/agency-profile.d
 import { CreateAgencyInput, CreateAgencyOutput } from './dtos/create-agency.dto';
 import { EditAgencyProfileInput, EditAgencyProfileOutput } from './dtos/edit-profile.dto';
 import { LoginAgencyInput, LoginAgencyOutput } from './dtos/login-agency.dto';
+import { AgencyAllRoomsInput, AgencyAllRoomsOutput } from './dtos/show-agencyRoom-ALL.dto';
 import { Agency } from './entities/agency.entity';
 
 @Resolver(of => Agency)
 export class AgencyResolver {
   constructor(private readonly agencyService: AgencyService) {}
 
+  //계정생성
   @Mutation(returns => CreateAgencyOutput)
   createAgency(@Args('input') createAgencyInput: CreateAgencyInput) {
     return this.agencyService.createAgency(createAgencyInput);
   }
 
+  //로그인
   @Mutation(returns => LoginAgencyOutput)
   loginAgency(@Args('input') loginAgencyInput: LoginAgencyInput): Promise<LoginAgencyOutput> {
     return this.agencyService.login(loginAgencyInput);
@@ -28,12 +31,14 @@ export class AgencyResolver {
     return authAgency;
   }
 
+  //프로필보기
   @UseGuards(AuthAgencyGuard)
   @Query(returns => AgencyProfileOutput)
   agencyProfile(@Args() agencyProfileInput: AgencyProfileInput): Promise<AgencyProfileOutput> {
     return this.agencyService.findById(agencyProfileInput.agencyId);
   }
 
+  //프로필 수정
   @UseGuards(AuthAgencyGuard)
   @Mutation(returns => EditAgencyProfileOutput)
   editAgencyProfile(
@@ -41,5 +46,10 @@ export class AgencyResolver {
     @Args('input') editProfileInput: EditAgencyProfileInput,
   ): Promise<EditAgencyProfileOutput> {
     return this.agencyService.editProfile(authAgency.id, editProfileInput);
+  }
+
+  @Query(returns => AgencyAllRoomsOutput)
+  showAgencyAllRoom(@Args() agencyAllRoomsInput: AgencyAllRoomsInput): Promise<AgencyAllRoomsOutput> {
+    return this.agencyService.showAgencyAllRoom(agencyAllRoomsInput.id);
   }
 }

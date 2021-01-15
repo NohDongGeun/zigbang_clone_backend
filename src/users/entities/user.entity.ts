@@ -12,7 +12,7 @@ enum Platform {
 }
 registerEnumType(Platform, { name: 'Platform' });
 
-@InputType({ isAbstract: true })
+@InputType('UserInputType', { isAbstract: true })
 @ObjectType()
 @Entity()
 export class User extends CoreEntity {

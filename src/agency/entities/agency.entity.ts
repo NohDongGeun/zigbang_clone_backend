@@ -3,8 +3,9 @@ import { CoreEntity } from 'src/common/entities/core.entity';
 import * as bcrypt from 'bcrypt';
 import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
 import { InternalServerErrorException } from '@nestjs/common';
+import { Room } from 'src/rooms/entities/room.entity';
 
-@InputType({ isAbstract: true })
+@InputType('AgencyInputType', { isAbstract: true })
 @ObjectType()
 @Entity()
 export class Agency extends CoreEntity {
@@ -35,6 +36,10 @@ export class Agency extends CoreEntity {
   @Column({ select: false })
   @Field(type => String)
   password: string;
+
+  @OneToMany(type => Room, room => room.agency)
+  @Field(type => [Room], { nullable: true })
+  rooms: Room[];
 
   @BeforeUpdate()
   @BeforeInsert()

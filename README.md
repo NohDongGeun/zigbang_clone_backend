@@ -2,20 +2,20 @@
 
 ZigBang Clone Backend
 
-## User Entity:
+## ROOM CRUD:
 
-    -id
-    -createAt
-    -updateAt
-    -platform
-    -email
-    -password
-    -CartRoom
+    -create Room  OK!
+    -show Rooms   OK!
+    -Room details OK!
+    -delete Room  OK!
+    -edit Room    OK!
 
-## User CRUD:
+## expense
 
-    -create Account
-    -Log In
-    -delete Account
-    -Verify Email
-    -SMS
+    - create Expense
+    - Show Expenses
+
+## options
+
+    -create Option
+    -show Options

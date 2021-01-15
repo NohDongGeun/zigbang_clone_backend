@@ -6,6 +6,7 @@ import { AgencyProfileOutput } from './dtos/agency-profile.dto';
 import { CreateAgencyInput } from './dtos/create-agency.dto';
 import { EditAgencyProfileInput, EditAgencyProfileOutput } from './dtos/edit-profile.dto';
 import { LoginAgencyInput, LoginAgencyOutput } from './dtos/login-agency.dto';
+import { AgencyAllRoomsInput, AgencyAllRoomsOutput } from './dtos/show-agencyRoom-ALL.dto';
 import { Agency } from './entities/agency.entity';
 
 @Injectable()
@@ -14,7 +15,7 @@ export class AgencyService {
     @InjectRepository(Agency) private readonly agencys: Repository<Agency>,
     private readonly jwtService: JwtService,
   ) {}
-
+  //부동산 계정 생성
   async createAgency(createAgencyInput: CreateAgencyInput) {
     try {
       const isAgency = await this.agencys.findOne({ email: createAgencyInput.email });
@@ -35,7 +36,7 @@ export class AgencyService {
 
   async findById(id: number): Promise<AgencyProfileOutput> {
     try {
-      const agency = await this.agencys.findOne({ id });
+      const agency = await this.agencys.findOne({ id }, { relations: ['rooms'] });
       return {
         ok: true,
         agency,
@@ -47,7 +48,7 @@ export class AgencyService {
       };
     }
   }
-
+  //로그인
   async login({ email, password }: LoginAgencyInput): Promise<LoginAgencyOutput> {
     try {
       const agency = await this.agencys.findOne({ email }, { select: ['id', 'password'] });
@@ -76,7 +77,7 @@ export class AgencyService {
       };
     }
   }
-
+  //프로필 수정
   async editProfile(
     agencyId: number,
     { phoneNum, address, name, password }: EditAgencyProfileInput,
@@ -98,6 +99,35 @@ export class AgencyService {
       await this.agencys.save(agency);
       return {
         ok: true,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error,
+      };
+    }
+  }
+  //부동산이 작성한 방들 다 보여주기
+  async showAgencyAllRoom(id: number): Promise<AgencyAllRoomsOutput> {
+    try {
+      const agency = await this.agencys.findOne({ id }, { relations: ['rooms'] });
+      if (!agency) {
+        return {
+          ok: false,
+          error: '잘못된 접근입니다',
+        };
+      }
+
+      const rooms = agency.rooms;
+      if (!rooms) {
+        return {
+          ok: false,
+          error: '다른 방이 없습니다',
+        };
+      }
+      return {
+        ok: true,
+        rooms: rooms,
       };
     } catch (error) {
       return {

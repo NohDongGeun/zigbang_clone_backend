@@ -2,9 +2,7 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/c
 import * as Joi from 'joi';
 import { GraphQLModule } from '@nestjs/graphql';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RoomModule } from './room/room.module';
 import { ConfigModule } from '@nestjs/config';
-import { Room } from './room/entities/room.entity';
 import { UsersModule } from './users/users.module';
 import { CommonModule } from './common/common.module';
 import { User } from './users/entities/user.entity';
@@ -15,6 +13,10 @@ import { Verification } from './users/entities/verification.entity';
 import { MailModule } from './mail/mail.module';
 import { AgencyModule } from './agency/agency.module';
 import { Agency } from './agency/entities/agency.entity';
+import { RoomsModule } from './rooms/rooms.module';
+import { Options } from './rooms/entities/options.entity';
+import { Expenses } from './rooms/entities/expense.entity';
+import { Room } from './rooms/entities/room.entity';
 
 @Module({
   imports: [
@@ -47,13 +49,12 @@ import { Agency } from './agency/entities/agency.entity';
       database: 'zicbang',
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: process.env.NODE_ENV !== 'prod',
-      entities: [Room, User, Verification, Agency],
+      entities: [User, Verification, Agency, Options, Expenses, Room],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
       context: ({ req }) => ({ user: req['user'], agency: req['agency'] }),
     }),
-    RoomModule,
     UsersModule,
     CommonModule,
     JwtModule.forRoot({ privateKey: process.env.PRIVATE_KEY }),
@@ -64,6 +65,7 @@ import { Agency } from './agency/entities/agency.entity';
       fromEmail: process.env.MAIL_FROMEMAIL,
     }),
     AgencyModule,
+    RoomsModule,
   ],
   controllers: [],
   providers: [],
