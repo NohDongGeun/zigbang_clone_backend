@@ -2,7 +2,8 @@ import { ObjectType, InputType, Field, registerEnumType } from '@nestjs/graphql'
 import { IsEnum } from 'class-validator';
 import { Agency } from 'src/agency/entities/agency.entity';
 import { CoreEntity } from 'src/common/entities/core.entity';
-import { Column, Entity, ManyToMany, ManyToOne, OneToMany, RelationId } from 'typeorm';
+import { Location } from 'src/location/entities/location.entity';
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne, RelationId } from 'typeorm';
 import { Expenses } from './expense.entity';
 import { Options } from './options.entity';
 
@@ -85,14 +86,19 @@ export class Room extends CoreEntity {
   image: string;
 
   //옵션 항목
-  //   @Column(type => Options)
-  //   @Field(type => [Options], { nullable: true })
-  //   options: Options[];
+  @ManyToMany(type => Options, { onDelete: 'CASCADE' })
+  @JoinTable()
+  @Field(type => [Options], { nullable: true })
+  options: Options[];
 
   //관리비 항목
-  //   @Column(type => Expenses)
-  //   @Field(type => [Expenses], { nullable: true })
-  //   expenses: Expenses[];
+  @ManyToMany(type => Expenses, { onDelete: 'CASCADE' })
+  @JoinTable()
+  @Field(type => [Expenses], { nullable: true })
+  expenses: Expenses[];
+
+
+
 
   //구조
   @Column({ type: 'enum', enum: RoomType })

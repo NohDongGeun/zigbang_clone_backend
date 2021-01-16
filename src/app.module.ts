@@ -17,6 +17,8 @@ import { RoomsModule } from './rooms/rooms.module';
 import { Options } from './rooms/entities/options.entity';
 import { Expenses } from './rooms/entities/expense.entity';
 import { Room } from './rooms/entities/room.entity';
+import { LocationModule } from './location/location.module';
+import { Location } from './location/entities/location.entity';
 
 @Module({
   imports: [
@@ -49,7 +51,7 @@ import { Room } from './rooms/entities/room.entity';
       database: 'zicbang',
       synchronize: process.env.NODE_ENV !== 'prod',
       logging: process.env.NODE_ENV !== 'prod',
-      entities: [User, Verification, Agency, Options, Expenses, Room],
+      entities: [User, Verification, Agency, Options, Expenses, Room, Location],
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
@@ -66,6 +68,7 @@ import { Room } from './rooms/entities/room.entity';
     }),
     AgencyModule,
     RoomsModule,
+    LocationModule,
   ],
   controllers: [],
   providers: [],

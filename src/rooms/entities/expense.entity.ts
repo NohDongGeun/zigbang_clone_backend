@@ -14,6 +14,6 @@ export class Expenses {
   name: string;
 
   @Column()
-  @Field(type => String)
+  @Field(type => String, { nullable: true })
   img: string;
 }
