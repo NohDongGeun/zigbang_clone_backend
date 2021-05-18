@@ -33,11 +33,11 @@ import { JoinColumn } from 'typeorm';
       //환경변수 유효성 검사
       validationSchema: Joi.object({
         NODE_ENV: Joi.string().valid('dev', 'production').required(),
-        DB_HOST: Joi.string().required(),
-        DB_PORT: Joi.string().required(),
-        DB_USERNAME: Joi.string().required(),
-        DB_PASSWORD: Joi.string().required(),
-        DB_DATABASE: Joi.string().required(),
+        DB_HOST: Joi.string(),
+        DB_PORT: Joi.string(),
+        DB_USERNAME: Joi.string(),
+        DB_PASSWORD: Joi.string(),
+        DB_DATABASE: Joi.string(),
         PRIVATE_KEY: Joi.string().required(),
         MAIL_APIKEY: Joi.string().required(),
         MAIL_DOMAIN: Joi.string().required(),
