@@ -57,9 +57,9 @@ import { JoinColumn } from 'typeorm';
       port: +process.env.DB_PORT,
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
-      database: 'zicbang',
-      synchronize: process.env.NODE_ENV !== 'prod',
-      logging: process.env.NODE_ENV !== 'prod',
+      database: process.env.DB_DATABASE,
+      synchronize: process.env.NODE_ENV !== 'production',
+      logging: process.env.NODE_ENV !== 'production',
       entities: [User, Verification, Agency, Options, Expenses, Room, Location],
     }),
     GraphQLModule.forRoot({
