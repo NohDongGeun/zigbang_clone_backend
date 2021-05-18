@@ -1,66 +1,38 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { CoreEntity } from 'src/common/entities/core.entity';
-import * as bcrypt from 'bcrypt';
-import { BeforeInsert, BeforeUpdate, Column, Entity, OneToMany } from 'typeorm';
-import { InternalServerErrorException } from '@nestjs/common';
+import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 import { Room } from 'src/rooms/entities/room.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @InputType('AgencyInputType', { isAbstract: true })
 @ObjectType()
 @Entity()
 export class Agency extends CoreEntity {
+  //부동산 이름
   @Column()
   @Field(type => String)
   name: string;
 
-  @Column({ unique: true })
-  @Field(type => Number)
-  bNumber: number;
-
+  //대표 공인중개사 이름
   @Column()
   @Field(type => String)
   agent: string;
 
+  //대표 번호
   @Column()
   @Field(type => String)
-  phoneNum: string;
+  phoneNum?: string;
 
+  //주소
   @Column()
   @Field(type => String)
   address: string;
 
-  @Column({ unique: true })
-  @Field(type => String)
-  email: string;
-
-  @Column({ select: false })
-  @Field(type => String)
-  password: string;
-
-  @OneToMany(type => Room, room => room.agency)
+  @OneToMany(type => Room, room => room.agency, { onDelete: 'CASCADE' })
   @Field(type => [Room], { nullable: true })
   rooms: Room[];
 
-  @BeforeUpdate()
-  @BeforeInsert()
-  async hashPassword(): Promise<void> {
-    if (this.password) {
-      try {
-        this.password = await bcrypt.hash(this.password, 10);
-      } catch (error) {
-        console.log(error);
-        throw new InternalServerErrorException();
-      }
-    }
-  }
-
-  async checkPassword(aPassword: string): Promise<boolean> {
-    try {
-      const ok = await bcrypt.compare(aPassword, this.password);
-      return ok;
-    } catch (error) {
-      console.log(error);
-      throw new InternalServerErrorException();
-    }
-  }
+  @Column()
+  @Field(type => String)
+  image: string;
 }

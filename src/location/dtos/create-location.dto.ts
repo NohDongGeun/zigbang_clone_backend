@@ -1,5 +1,15 @@
-import { InputType, ObjectType, PickType } from '@nestjs/graphql';
+import { Field, InputType, ObjectType, PickType, Float } from '@nestjs/graphql';
+import { MutationOutput } from 'src/common/dtos/output.dto';
 import { Location } from '../entities/location.entity';
 
 @InputType()
-export class CreateLocationInput extends PickType(Location, ['lat', 'lag']) {}
+export class CreateLocationInput {
+  @Field(type => Float)
+  lat: number;
+
+  @Field(type => Float)
+  lon: number;
+}
+
+@ObjectType()
+export class CreateLocationOutput extends MutationOutput {}

@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { throws } from 'assert';
 import { JwtService } from 'src/jwt/jwt.service';
+import { Room } from 'src/rooms/entities/room.entity';
+import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { AgencyProfileOutput } from './dtos/agency-profile.dto';
-import { CreateAgencyInput } from './dtos/create-agency.dto';
+import { CreateAgencyInput, CreateAgencyOutput } from './dtos/create-agency.dto';
+import { DeleteAgencyOutput } from './dtos/delete-agency.dto';
 import { EditAgencyProfileInput, EditAgencyProfileOutput } from './dtos/edit-profile.dto';
-import { LoginAgencyInput, LoginAgencyOutput } from './dtos/login-agency.dto';
+import { IsAgencyInput, IsAgencyOutput } from './dtos/isAgency.dto';
 import { AgencyAllRoomsInput, AgencyAllRoomsOutput } from './dtos/show-agencyRoom-ALL.dto';
 import { Agency } from './entities/agency.entity';
 
@@ -13,30 +17,53 @@ import { Agency } from './entities/agency.entity';
 export class AgencyService {
   constructor(
     @InjectRepository(Agency) private readonly agencys: Repository<Agency>,
-    private readonly jwtService: JwtService,
+    @InjectRepository(User) private readonly users: Repository<User>,
+    @InjectRepository(Room) private readonly rooms: Repository<Room>,
   ) {}
+
   //부동산 계정 생성
-  async createAgency(createAgencyInput: CreateAgencyInput) {
+  async createAgency(userId: number, createAgencyInput: CreateAgencyInput): Promise<CreateAgencyOutput> {
     try {
-      const isAgency = await this.agencys.findOne({ email: createAgencyInput.email });
-      if (isAgency) {
-        return { ok: false, error: '이미 가입한 계정입니다' };
+      const user = await this.users.findOne({ id: userId }, { relations: ['agency'] });
+
+      if (!user) {
+        return {
+          ok: false,
+          error: '로그인 후 이용하시기 바랍니다.',
+        };
       }
-      await this.agencys.save(this.agencys.create(createAgencyInput));
+      if (user.isAgency) {
+        return {
+          ok: false,
+          error: '이미 가입된 부동산계정입니다',
+        };
+      }
+
+      const newAgency = await this.agencys.save(this.agencys.create({ ...createAgencyInput, phoneNum: user.phone }));
+      user.isAgency = true;
+      user.agency = newAgency;
+      await this.users.save(user);
       return {
         ok: true,
       };
     } catch (error) {
       return {
         ok: false,
-        error: '계정을 생성할 수 없습니다',
+        error,
       };
     }
   }
 
-  async findById(id: number): Promise<AgencyProfileOutput> {
+  async agencyProfile(userId: number): Promise<AgencyProfileOutput> {
     try {
-      const agency = await this.agencys.findOne({ id }, { relations: ['rooms'] });
+      const user = await this.users.findOne({ id: userId }, { relations: ['agency'] });
+      if (!user || !user.agency) {
+        return {
+          ok: false,
+          error: '잘못된 접근입니다.',
+        };
+      }
+      const agency = user.agency;
       return {
         ok: true,
         agency,
@@ -48,91 +75,95 @@ export class AgencyService {
       };
     }
   }
-  //로그인
-  async login({ email, password }: LoginAgencyInput): Promise<LoginAgencyOutput> {
+
+  async agencyEditProfile(userId: number, editAgencyProfileInput: EditAgencyProfileInput) {
     try {
-      const agency = await this.agencys.findOne({ email }, { select: ['id', 'password'] });
-      if (!agency) {
+      const user = await this.users.findOne({ id: userId }, { relations: ['agency'] });
+      if (!user) {
         return {
           ok: false,
-          error: '잘못된 이메일 입니다',
-        };
-      }
-      const passwordCorrect = await agency.checkPassword(password);
-      if (!passwordCorrect) {
-        return {
-          ok: false,
-          error: '잘못된 비밀번호 입니다',
-        };
-      }
-      const token = this.jwtService.sign({ id: agency.id });
-      return {
-        ok: true,
-        token,
-      };
-    } catch (error) {
-      return {
-        ok: false,
-        error,
-      };
-    }
-  }
-  //프로필 수정
-  async editProfile(
-    agencyId: number,
-    { phoneNum, address, name, password }: EditAgencyProfileInput,
-  ): Promise<EditAgencyProfileOutput> {
-    try {
-      const agency = await this.agencys.findOne(agencyId);
-      if (name) {
-        agency.name = name;
-      }
-      if (phoneNum) {
-        agency.phoneNum = phoneNum;
-      }
-      if (password) {
-        agency.password = password;
-      }
-      if (address) {
-        agency.address = address;
-      }
-      await this.agencys.save(agency);
-      return {
-        ok: true,
-      };
-    } catch (error) {
-      return {
-        ok: false,
-        error,
-      };
-    }
-  }
-  //부동산이 작성한 방들 다 보여주기
-  async showAgencyAllRoom(id: number): Promise<AgencyAllRoomsOutput> {
-    try {
-      const agency = await this.agencys.findOne({ id }, { relations: ['rooms'] });
-      if (!agency) {
-        return {
-          ok: false,
-          error: '잘못된 접근입니다',
+          error: '잘못된 접근입니다.',
         };
       }
 
-      const rooms = agency.rooms;
-      if (!rooms) {
-        return {
-          ok: false,
-          error: '다른 방이 없습니다',
-        };
-      }
+      await this.agencys.save([
+        {
+          id: user.agency.id,
+          ...editAgencyProfileInput,
+        },
+      ]);
       return {
         ok: true,
-        rooms: rooms,
       };
     } catch (error) {
       return {
         ok: false,
         error,
+      };
+    }
+  }
+  // agency가 관리하는 방 전부 보여주기
+  async showAgencyAllRoom(userId: number): Promise<AgencyAllRoomsOutput> {
+    try {
+      const user = await this.users.findOne({ id: userId }, { relations: ['agency'] });
+      if (!user || !user.agency) {
+        return {
+          ok: false,
+          error: '잘못된 접근입니다.',
+        };
+      }
+      const agency = await this.agencys.findOne({ id: user.agency.id }, { relations: ['rooms'] });
+      const rooms = agency.rooms;
+      return {
+        ok: true,
+        rooms,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error,
+      };
+    }
+  }
+
+  //agency delete
+  async deleteAgency(userId: number): Promise<DeleteAgencyOutput> {
+    try {
+      const user = await this.users.findOne({ id: userId }, { relations: ['agency'] });
+      if (!user || !user.agency) {
+        return {
+          ok: false,
+          error: '잘못된 접근입니다.',
+        };
+      }
+      const agency = await this.agencys.findOne({ id: user.agency.id }, { relations: ['rooms'] });
+      user.isAgency = false;
+      await this.users.save(user);
+      await this.agencys.delete({ id: agency.id });
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error,
+      };
+    }
+  }
+
+  async isAgency(userId: number, { roomId }: IsAgencyInput): Promise<IsAgencyOutput> {
+    try {
+      const user = await this.users.findOne({ id: userId }, { relations: ['agency'] });
+      const room = await this.rooms.findOne({ id: roomId }, { relations: ['agency'] });
+      if (room.agencyId === user.agency.id) return { ok: true };
+      return {
+        ok: false,
+        error: '잘못된 접근입니다.',
+      };
+    } catch (error) {
+      return {
+        ok: false,
+        error: '잘못된 접근입니다.',
       };
     }
   }

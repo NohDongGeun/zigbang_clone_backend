@@ -1,21 +1,23 @@
-# ZigBang
+# 부동산 서비스 EROOM
 
-ZigBang Clone Backend
+## 사용 기술
 
-## ROOM CRUD:
+### FRONTEND
+* React
+* Typescript
+* Tailwind CSS
+* Apollo
+* Storybook
 
-    -create Room  OK!
-    -show Rooms   OK!
-    -Room details OK!
-    -delete Room  OK!
-    -edit Room    OK!
+### BACKEND
+* Nest.js
+* TypeORM
+* GraphQL
+* PostgreSQL
 
-## expense
-
-    - create Expense
-    - Show Expenses
-
-## options
-
-    -create Option
-    -show Options
+### API
+* Kakao Map
+* Daum Postcode
+* Naver SENS
+* Mailgun
+* AWS S3

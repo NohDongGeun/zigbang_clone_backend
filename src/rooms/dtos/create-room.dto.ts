@@ -7,19 +7,22 @@ import { Room } from '../entities/room.entity';
 @InputType()
 export class CreateRoomInput extends PickType(Room, [
   'isParking',
-  'isElevator',
-  'PosibleMove',
+  'posibleMove',
   'supplyArea',
   'exclusiveArea',
-  'direction',
-  'completionDate',
   'floor',
   'buildingFloor',
   'address',
-  'text',
-  'image',
+  'title',
+  'expense',
+  'content',
+  'images',
   'roomType',
   'dealType',
+  'rent',
+  'deposit',
+  's3Code',
+  'secretAddress',
 ]) {}
 
 @ObjectType()

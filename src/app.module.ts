@@ -19,6 +19,9 @@ import { Expenses } from './rooms/entities/expense.entity';
 import { Room } from './rooms/entities/room.entity';
 import { LocationModule } from './location/location.module';
 import { Location } from './location/entities/location.entity';
+import { SmsModule } from './sms/sms.module';
+import { UploadsModule } from './uploads/uploads.module';
+import { JoinColumn } from 'typeorm';
 
 @Module({
   imports: [
@@ -39,6 +42,12 @@ import { Location } from './location/entities/location.entity';
         MAIL_APIKEY: Joi.string().required(),
         MAIL_DOMAIN: Joi.string().required(),
         MAIL_FROMEMAIL: Joi.string().required(),
+        SMS_SERVICE_ID: Joi.string().required(),
+        SMS_ACCESS_KEY: Joi.string().required(),
+        SMS_SECRET_KEY: Joi.string().required(),
+        SMS_FROM: Joi.string().required(),
+        S3_ACCESS_KEY: Joi.string().required(),
+        S3_SECRET_KEY: Joi.string().required(),
       }),
     }),
     //postgres 연결
@@ -55,6 +64,9 @@ import { Location } from './location/entities/location.entity';
     }),
     GraphQLModule.forRoot({
       autoSchemaFile: true,
+      buildSchemaOptions: {
+        numberScalarMode: 'integer',
+      },
       context: ({ req }) => ({ user: req['user'], agency: req['agency'] }),
     }),
     UsersModule,
@@ -66,9 +78,20 @@ import { Location } from './location/entities/location.entity';
       domain: process.env.MAIL_DOMAIN,
       fromEmail: process.env.MAIL_FROMEMAIL,
     }),
+    SmsModule.forRoot({
+      serviceId: process.env.SMS_SERVICE_ID,
+      secretKey: process.env.SMS_SECRET_KEY,
+      accessKey: process.env.SMS_ACCESS_KEY,
+      from: process.env.SMS_FROM,
+    }),
     AgencyModule,
     RoomsModule,
     LocationModule,
+    SmsModule,
+    UploadsModule.forRoot({
+      accessKey: process.env.S3_ACCESS_KEY,
+      secretKey: process.env.S3_SECRET_KEY,
+    }),
   ],
   controllers: [],
   providers: [],

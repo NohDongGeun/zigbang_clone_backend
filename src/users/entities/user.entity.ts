@@ -1,16 +1,30 @@
 import { Field, InputType, ObjectType, registerEnumType } from '@nestjs/graphql';
-import { isAbstractType } from 'graphql';
 import { CoreEntity } from 'src/common/entities/core.entity';
-import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { InternalServerErrorException } from '@nestjs/common';
-import { IsEnum, IsNumber, IsString } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
+import { Agency } from 'src/agency/entities/agency.entity';
+import { Room } from 'src/rooms/entities/room.entity';
 
-enum Platform {
-  Kakao,
-  Zigbang,
+export enum Verify {
+  no,
+  checking,
+  verified,
 }
-registerEnumType(Platform, { name: 'Platform' });
+
+registerEnumType(Verify, { name: 'Verify' });
 
 @InputType('UserInputType', { isAbstract: true })
 @ObjectType()
@@ -26,24 +40,33 @@ export class User extends CoreEntity {
   @IsString()
   name: string;
 
-  @Column()
-  @Field(type => Number)
+  @Column({ nullable: true })
+  @Field(type => String, { nullable: true })
   @IsNumber()
-  phone: number;
-
-  @Column({ type: 'enum', enum: Platform })
-  @Field(type => Platform)
-  @IsEnum(Platform)
-  platform: Platform;
+  phone: string;
 
   @Column({ select: false })
   @Field(type => String)
   @IsString()
   password: string;
 
+  @Column({ type: 'enum', enum: Verify, default: 0 })
+  @Field(type => Verify)
+  verified: Verify;
+
+  @ManyToMany(() => Room, room => room.user)
+  @JoinTable()
+  @Field(type => [Room], { nullable: true })
+  room?: Room[];
+
   @Column({ default: false })
   @Field(type => Boolean)
-  verified: boolean;
+  isAgency: boolean;
+
+  @OneToOne(type => Agency, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn()
+  @Field(type => Agency, { nullable: true })
+  agency?: Agency;
 
   @BeforeUpdate()
   @BeforeInsert()

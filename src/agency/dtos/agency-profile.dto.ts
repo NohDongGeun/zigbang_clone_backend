@@ -5,7 +5,7 @@ import { Agency } from '../entities/agency.entity';
 @ArgsType()
 export class AgencyProfileInput {
   @Field(type => Number)
-  agencyId: number;
+  userId: number;
 }
 
 @ObjectType()

@@ -3,9 +3,7 @@ import { MutationOutput } from 'src/common/dtos/output.dto';
 import { Agency } from '../entities/agency.entity';
 
 @InputType()
-export class EditAgencyProfileInput extends PartialType(
-  PickType(Agency, ['address', 'password', 'name', 'phoneNum']),
-) {}
+export class EditAgencyProfileInput extends PartialType(PickType(Agency, ['address', 'name', 'phoneNum', 'agent'])) {}
 
 @ObjectType()
 export class EditAgencyProfileOutput extends MutationOutput {}

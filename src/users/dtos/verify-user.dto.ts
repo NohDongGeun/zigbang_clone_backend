@@ -3,7 +3,7 @@ import { MutationOutput } from 'src/common/dtos/output.dto';
 import { Verification } from '../entities/verification.entity';
 
 @ObjectType()
-export class VerifyEmailOutput extends MutationOutput {}
+export class VerifyUserOutput extends MutationOutput {}
 
 @InputType()
-export class VerifyEmailInput extends PickType(Verification, ['code']) {}
+export class VerifyUserInput extends PickType(Verification, ['code']) {}
