@@ -64,6 +64,7 @@ import { JoinColumn } from 'typeorm';
           }),
       synchronize: process.env.NODE_ENV !== 'production',
       logging: process.env.NODE_ENV !== 'production',
+      ssl: { rejectUnauthorized: false },
       entities: [User, Verification, Agency, Options, Expenses, Room, Location],
     }),
     GraphQLModule.forRoot({
