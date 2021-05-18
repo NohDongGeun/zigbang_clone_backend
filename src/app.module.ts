@@ -29,10 +29,10 @@ import { JoinColumn } from 'typeorm';
       isGlobal: true,
       //env 설정
       envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.test',
-      ignoreEnvFile: process.env.NODE_ENV === 'prod',
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
       //환경변수 유효성 검사
       validationSchema: Joi.object({
-        NODE_ENV: Joi.string().valid('dev', 'prod').required(),
+        NODE_ENV: Joi.string().valid('dev', 'production').required(),
         DB_HOST: Joi.string().required(),
         DB_PORT: Joi.string().required(),
         DB_USERNAME: Joi.string().required(),
