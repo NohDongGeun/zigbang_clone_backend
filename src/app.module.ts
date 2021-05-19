@@ -69,6 +69,8 @@ import { JoinColumn } from 'typeorm';
     }),
     GraphQLModule.forRoot({
       // playground: process.env.NODE_ENV !== 'production',
+      introspection: true,
+      playground: true,
       autoSchemaFile: true,
       buildSchemaOptions: {
         numberScalarMode: 'integer',
