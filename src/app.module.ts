@@ -68,7 +68,7 @@ import { JoinColumn } from 'typeorm';
       entities: [User, Verification, Agency, Options, Expenses, Room, Location],
     }),
     GraphQLModule.forRoot({
-      playground: process.env.NODE_ENV !== 'production',
+      // playground: process.env.NODE_ENV !== 'production',
       autoSchemaFile: true,
       buildSchemaOptions: {
         numberScalarMode: 'integer',
