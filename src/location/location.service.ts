@@ -62,7 +62,7 @@ export class LocationService {
         .where(`location.point && ST_MakeEnvelope(${dist[0]},${dist[1]},${dist[2]},${dist[3]}, 4326)`)
         .andWhere('room.isActive= :isActive', { isActive: true });
 
-      if (dealType === '전세' && '월세') {
+      if (dealType === '전세' || dealType === '월세') {
         query.andWhere('room.dealType= :dealType', { dealType });
       }
       if (floorType === '반지하/옥탑') {
